@@ -48,6 +48,7 @@ local interest = 0.08
 
 local locations = 0
 local cash = 3000
+local incomePerLocation = 150
 local bank = 0
 
 local function activationListener(item: GuiButton, func)
@@ -162,6 +163,6 @@ cashDisplay.Text = "$" .. tostring(cash)
 while true do
     task.wait(1.5)
     day += 1
-    cash += locations * 150
+    cash += locations * incomePerLocation
     cashDisplay.Text = "$" .. tostring(cash)
 end
