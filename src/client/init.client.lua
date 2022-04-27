@@ -101,6 +101,8 @@ bankSub.Visible = false
 
 local day = 0
 local interest = 0.08
+local gameSpeed = 1.5
+local franchiseChance = .2
 
 local locations = 0
 local franchises = 0
@@ -167,7 +169,27 @@ purchases = {
             bankAdd.Visible = true
             bankSub.Visible = true
         end
-    }
+    },
+    {
+        Dependency = "Franchise",
+        Name = "Marketing I",
+        Price = 10000,
+        Description = "Run an ad campaign to increase income and speed of franchising.",
+        Action = function()
+            incomePerLocation += 50
+            franchiseChance += .1
+        end
+    },
+    {
+        Dependency = "Marketing I",
+        Name = "Marketing II",
+        Price = 20000,
+        Description = "Run another ad campaign to increase income and speed of franchising.",
+        Action = function()
+            incomePerLocation += 100
+            franchiseChance += .2
+        end
+    },
 }
 
 local baseButton = Instance.new("TextButton")
@@ -249,23 +271,48 @@ for i, purchase in pairs(purchases) do
     end
 end
 
+activationListener(bankAdd, function()
+    if bankingEnabled then
+        local toAdd = math.round(cash/5)
+        cash -= toAdd
+        banked += toAdd
+        cashDisplay.Text = "$" .. tostring(cash)
+        bankDisplay.Text = "$" .. tostring(banked)
+    end
+end)
+activationListener(bankSub, function()
+    if bankingEnabled then
+        local toRemove = math.round(banked/5)
+        banked -= toRemove
+        cash += toRemove
+        cashDisplay.Text = "$" .. tostring(cash)
+        bankDisplay.Text = "$" .. tostring(banked)
+    end
+end)
+
 cashDisplay.Text = "$" .. tostring(cash)
+
 while true do
-    task.wait(1.5)
+    task.wait(gameSpeed)
 
     day += 1
     cash += locations * incomePerLocation
     cashDisplay.Text = "$" .. tostring(cash)
 
     if franchisesEnabled then
-        if math.random() > .8 then
+        if math.random() > (1 - franchiseChance) then
             franchises += 1
-            franchiseDisplay.Text = tostring(franchises) .. " Franchises"
+            if franchises ~= 1 then
+                franchiseDisplay.Text = tostring(franchises) .. " Franchises"
+            else
+                franchiseDisplay.Text = [[1 Franchise]]
+            end
         end
         cash += franchises * (incomePerLocation / 2)
     end
     if bankingEnabled then
-        banked *= 1 + interest
+        banked *= 1 + (interest / 365)
+        banked = math.round(banked)
         bankDisplay.Text = "$" .. tostring(banked)
     end
 end
