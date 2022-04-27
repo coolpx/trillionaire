@@ -190,6 +190,27 @@ purchases = {
             franchiseChance += .2
         end
     },
+    {
+        Dependency = "Marketing II",
+        Name = "Marketing III",
+        Price = 25000,
+        Description = "Run another ad campaign to increase income and speed of franchising.",
+        Action = function()
+            incomePerLocation += 100
+            franchiseChance += .2
+        end
+    },
+    {
+        Dependency = "Marketing III",
+        Name = "Large Business",
+        Price = 50000,
+        Description = "Become a large business, slightly decreasing income but increasing franchise chance and speed.",
+        Action = function()
+            incomePerLocation -= 50
+            franchiseChance += 1.3
+            gameSpeed = 1
+        end
+    },
 }
 
 local baseButton = Instance.new("TextButton")
@@ -300,13 +321,19 @@ while true do
     cashDisplay.Text = "$" .. tostring(cash)
 
     if franchisesEnabled then
-        if math.random() > (1 - franchiseChance) then
-            franchises += 1
-            if franchises ~= 1 then
-                franchiseDisplay.Text = tostring(franchises) .. " Franchises"
-            else
-                franchiseDisplay.Text = [[1 Franchise]]
+        if franchiseChance <= 1 then
+            if math.random() > (1 - franchiseChance) then
+                franchises += 1
+                if franchises ~= 1 then
+                    franchiseDisplay.Text = tostring(franchises) .. " Franchises"
+                else
+                    franchiseDisplay.Text = [[1 Franchise]]
+                end
             end
+        else
+            local newFranchises = math.random(1, math.round(franchiseChance))
+            franchises += newFranchises
+            franchiseDisplay.Text = tostring(franchises) .. " Franchises"
         end
         cash += franchises * (incomePerLocation / 2)
     end
