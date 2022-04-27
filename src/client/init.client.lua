@@ -234,8 +234,8 @@ for i, purchase in pairs(purchases) do
     
         activationListener(button, function()
             if cash >= purchase.Price then
-                button:Destroy()
                 if not purchase["DoNotDelete"] then
+                    button:Destroy()
                     table.remove(purchases, i)
                 end
                 cash = cash - purchase.Price
