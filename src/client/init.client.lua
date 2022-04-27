@@ -216,14 +216,15 @@ purchases = {
             franchiseChance += 1.3
             gameSpeed = 1
             purchaseList["Another Location"]:Destroy()
-            table.remove(purchaseList, 2)
+            table.remove(purchases, 2)
         end
     },
     {
+        DoNotDelete = true,
         Dependency = "Go International",
-        Name = "Another Location",
+        Name = "More Locations",
         Price = 75000,
-        Description = "Get another store to increase profits.",
+        Description = "Get more stores to increase profits.",
         Action = function()
             locations += 50
             locationDisplay.Text = tostring(locations) .. " Locations"
