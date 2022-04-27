@@ -67,6 +67,7 @@ franchiseDisplay.TextScaled = true
 franchiseDisplay.Visible = false
 
 local bankDisplay = Instance.new("TextLabel", mainFrame)
+bankDisplay.Text = "$0"
 bankDisplay.Name = "FranchiseLabel"
 bankDisplay.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
 bankDisplay.Size = UDim2.new(.4, -8, .2, -8)
@@ -215,8 +216,10 @@ for i, purchase in pairs(purchases) do
         
             activationListener(button, function()
                 if cash >= purchase.Price then
-                    button:Destroy()
-                    table.remove(purchases, i)
+                    if not purchase["DoNotDelete"] then
+                        button:Destroy()
+                        table.remove(purchases, i)
+                    end
                     cash = cash - purchase.Price
                     purchase.Action()
                     cashDisplay.Text = "$" .. tostring(cash)
@@ -260,5 +263,9 @@ while true do
             franchiseDisplay.Text = tostring(franchises) .. " Franchises"
         end
         cash += franchises * (incomePerLocation / 2)
+    end
+    if bankingEnabled then
+        banked *= 1 + interest
+        bankDisplay.Text = "$" .. tostring(banked)
     end
 end
