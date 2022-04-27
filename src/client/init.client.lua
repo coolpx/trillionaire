@@ -106,7 +106,7 @@ local franchiseChance = .2
 
 local locations = 0
 local franchises = 0
-local cash = 3000
+local cash = 300000
 local incomePerLocation = 150
 local banked = 0
 
@@ -118,12 +118,7 @@ local function activationListener(item: GuiButton, func)
     item.TouchTap:Connect(func)
 end
 local function isForSale(item: string)
-    for i, purchase in pairs(purchases) do
-        if purchase.Name == item then
-            return true
-        end
-    end
-    return false
+    return not purchased[item]
 end
 
 purchases = {
@@ -204,14 +199,38 @@ purchases = {
         Dependency = "Marketing III",
         Name = "Large Business",
         Price = 50000,
-        Description = "Become a large business, slightly decreasing income but increasing franchise chance and speed.",
+        Description = "Become a large business, slightly decreasing income but increasing franchise chance and speed greatly.",
         Action = function()
             incomePerLocation -= 50
             franchiseChance += 1.3
             gameSpeed = 1
         end
     },
+    {
+        Dependency = "Large Business",
+        Name = "Go International",
+        Price = 100000,
+        Description = "Become a global business, increasing income and franchise speed greatly. Another Location now buys 50 locations.",
+        Action = function()
+            incomePerLocation += 100
+            franchiseChance += 1.3
+            gameSpeed = 1
+            purchaseList["Another Location"]:Destroy()
+            table.remove(purchaseList, 2)
+        end
+    },
+    {
+        Dependency = "Go International",
+        Name = "Another Location",
+        Price = 75000,
+        Description = "Get another store to increase profits.",
+        Action = function()
+            locations += 50
+            locationDisplay.Text = tostring(locations) .. " Locations"
+        end
+    }
 }
+purchased = {}
 
 local baseButton = Instance.new("TextButton")
 baseButton.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
@@ -250,6 +269,7 @@ for i, purchase in pairs(purchases) do
             repeat task.wait() until not isForSale(purchase["Dependency"])
 
             local button = baseButton:Clone()
+            button.Name = purchase.Name
             button.Size = UDim2.new(1, -12, .1, -4)
             button.Position = UDim2.new(0, 4, 0, 4)
             button.Title.Text = purchase.Name
@@ -261,6 +281,7 @@ for i, purchase in pairs(purchases) do
                 if cash >= purchase.Price then
                     if not purchase["DoNotDelete"] then
                         button:Destroy()
+                        purchased[purchase.Name] = true
                         table.remove(purchases, i)
                     end
                     cash = cash - purchase.Price
@@ -282,6 +303,7 @@ for i, purchase in pairs(purchases) do
             if cash >= purchase.Price then
                 if not purchase["DoNotDelete"] then
                     button:Destroy()
+                    purchased[purchase.Name] = true
                     table.remove(purchases, i)
                 end
                 cash = cash - purchase.Price
